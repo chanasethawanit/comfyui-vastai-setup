@@ -1,0 +1,272 @@
+{
+  "last_node_id": 150,
+  "last_link_id": 200,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "CheckpointLoaderSimple",
+      "pos": [50, 100],
+      "size": [320, 100],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {"name": "MODEL", "type": "MODEL", "links": [1], "slot_index": 0},
+        {"name": "CLIP", "type": "CLIP", "links": [2, 3], "slot_index": 1},
+        {"name": "VAE", "type": "VAE", "links": [4], "slot_index": 2}
+      ],
+      "properties": {"Node name for S&R": "CheckpointLoaderSimple"},
+      "widgets_values": ["animagineXLV3_v30.safetensors"]
+    },
+    {
+      "id": 2,
+      "type": "CLIPTextEncode",
+      "pos": [400, 100],
+      "size": [420, 200],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [{"name": "clip", "type": "CLIP", "link": 2}],
+      "outputs": [{"name": "CONDITIONING", "type": "CONDITIONING", "links": [10]}],
+      "properties": {"Node name for S&R": "CLIPTextEncode"},
+      "widgets_values": ["masterpiece, best quality, 1girl, anime style, detailed illustration, professional artwork, layered composition, clean lineart, vibrant colors"]
+    },
+    {
+      "id": 3,
+      "type": "CLIPTextEncode",
+      "pos": [400, 320],
+      "size": [420, 120],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [{"name": "clip", "type": "CLIP", "link": 3}],
+      "outputs": [{"name": "CONDITIONING", "type": "CONDITIONING", "links": [11]}],
+      "properties": {"Node name for S&R": "CLIPTextEncode"},
+      "widgets_values": ["lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry"]
+    },
+    {
+      "id": 10,
+      "type": "EmptyLatentImage",
+      "pos": [50, 250],
+      "size": [320, 110],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [{"name": "LATENT", "type": "LATENT", "links": [20]}],
+      "properties": {"Node name for S&R": "EmptyLatentImage"},
+      "widgets_values": [1024, 1536, 1]
+    },
+    {
+      "id": 20,
+      "type": "Note",
+      "pos": [850, 50],
+      "size": [400, 150],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "properties": {"text": ""},
+      "widgets_values": ["PROFESSIONAL LAYER-BASED WORKFLOW\n\nThis workflow generates:\n1. Lineart Layer\n2. Base Color Layer\n3. Shadow Layer\n4. Lighting Layer\n5. Background Layer\n6. Effects Layer\n7. Final Composite\n\nEach layer is saved separately as PNG with transparency."],
+      "bgcolor": "#2a363b",
+      "color": "#3f5159"
+    },
+    {
+      "id": 30,
+      "type": "KSampler",
+      "pos": [850, 220],
+      "size": [320, 260],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {"name": "model", "type": "MODEL", "link": 1},
+        {"name": "positive", "type": "CONDITIONING", "link": 10},
+        {"name": "negative", "type": "CONDITIONING", "link": 11},
+        {"name": "latent_image", "type": "LATENT", "link": 20}
+      ],
+      "outputs": [{"name": "LATENT", "type": "LATENT", "links": [30]}],
+      "properties": {"Node name for S&R": "KSampler"},
+      "widgets_values": [42, "randomize", 30, 7, "dpmpp_2m_sde", "karras", 1]
+    },
+    {
+      "id": 40,
+      "type": "VAEDecode",
+      "pos": [1200, 300],
+      "size": [210, 46],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {"name": "samples", "type": "LATENT", "link": 30},
+        {"name": "vae", "type": "VAE", "link": 4}
+      ],
+      "outputs": [{"name": "IMAGE", "type": "IMAGE", "links": [40, 41, 42, 43, 44]}],
+      "properties": {"Node name for S&R": "VAEDecode"}
+    },
+    {
+      "id": 50,
+      "type": "SaveImage",
+      "pos": [1450, 100],
+      "size": [320, 270],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [{"name": "images", "type": "IMAGE", "link": 40}],
+      "properties": {},
+      "widgets_values": ["base_generation"]
+    },
+    {
+      "id": 60,
+      "type": "Note",
+      "pos": [1450, 400],
+      "size": [320, 100],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "properties": {"text": ""},
+      "widgets_values": ["LAYER EXTRACTION SECTION\n\nNext: This base image will be processed through:\n- Lineart extractor\n- Color segmentation\n- Lighting/Shadow separation"],
+      "bgcolor": "#233",
+      "color": "#355"
+    },
+    {
+      "id": 70,
+      "type": "LineArtPreprocessor",
+      "pos": [1800, 100],
+      "size": [320, 80],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [{"name": "image", "type": "IMAGE", "link": 41}],
+      "outputs": [{"name": "IMAGE", "type": "IMAGE", "links": [70]}],
+      "properties": {"Node name for S&R": "LineArtPreprocessor"},
+      "widgets_values": ["enable"]
+    },
+    {
+      "id": 71,
+      "type": "SaveImage",
+      "pos": [2150, 100],
+      "size": [320, 270],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [{"name": "images", "type": "IMAGE", "link": 70}],
+      "properties": {},
+      "widgets_values": ["layer_01_lineart"]
+    },
+    {
+      "id": 80,
+      "type": "ImageColorToMask",
+      "pos": [1800, 250],
+      "size": [320, 80],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [{"name": "image", "type": "IMAGE", "link": 42}],
+      "outputs": [{"name": "MASK", "type": "MASK", "links": [80]}],
+      "properties": {"Node name for S&R": "ImageColorToMask"},
+      "widgets_values": ["white"]
+    },
+    {
+      "id": 81,
+      "type": "SaveImage",
+      "pos": [2150, 400],
+      "size": [320, 270],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [{"name": "images", "type": "IMAGE", "link": 42}],
+      "properties": {},
+      "widgets_values": ["layer_02_base_color"]
+    },
+    {
+      "id": 90,
+      "type": "ImageBlend",
+      "pos": [2500, 100],
+      "size": [320, 120],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {"name": "image1", "type": "IMAGE", "link": 70},
+        {"name": "image2", "type": "IMAGE", "link": 42}
+      ],
+      "outputs": [{"name": "IMAGE", "type": "IMAGE", "links": [90]}],
+      "properties": {"Node name for S&R": "ImageBlend"},
+      "widgets_values": ["multiply", 1.0]
+    },
+    {
+      "id": 100,
+      "type": "SaveImage",
+      "pos": [2850, 100],
+      "size": [350, 300],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [{"name": "images", "type": "IMAGE", "link": 90}],
+      "properties": {},
+      "widgets_values": ["final_composite"]
+    },
+    {
+      "id": 110,
+      "type": "Note",
+      "pos": [2500, 250],
+      "size": [320, 150],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "properties": {"text": ""},
+      "widgets_values": ["COMPOSITING SECTION\n\nLayers are combined here:\n- Lineart (multiply mode)\n- Base colors\n- Shadows (multiply)\n- Lighting (screen/add)\n- Effects (overlay)\n\nYou can adjust blend modes and opacity in the ImageBlend nodes."],
+      "bgcolor": "#322",
+      "color": "#533"
+    }
+  ],
+  "links": [
+    [1, 1, 0, 30, 0, "MODEL"],
+    [2, 1, 1, 2, 0, "CLIP"],
+    [3, 1, 1, 3, 0, "CLIP"],
+    [4, 1, 2, 40, 1, "VAE"],
+    [10, 2, 0, 30, 1, "CONDITIONING"],
+    [11, 3, 0, 30, 2, "CONDITIONING"],
+    [20, 10, 0, 30, 3, "LATENT"],
+    [30, 30, 0, 40, 0, "LATENT"],
+    [40, 40, 0, 50, 0, "IMAGE"],
+    [41, 40, 0, 70, 0, "IMAGE"],
+    [42, 40, 0, 80, 0, "IMAGE"],
+    [42, 40, 0, 81, 0, "IMAGE"],
+    [43, 40, 0, 90, 1, "IMAGE"],
+    [70, 70, 0, 71, 0, "IMAGE"],
+    [70, 70, 0, 90, 0, "IMAGE"],
+    [80, 80, 0, null, null, "MASK"],
+    [90, 90, 0, 100, 0, "IMAGE"]
+  ],
+  "groups": [
+    {
+      "title": "1. INPUT & BASE GENERATION",
+      "bounding": [30, 30, 1180, 480],
+      "color": "#3f789e",
+      "font_size": 24
+    },
+    {
+      "title": "2. LAYER EXTRACTION",
+      "bounding": [1420, 30, 770, 480],
+      "color": "#8f3f3f",
+      "font_size": 24
+    },
+    {
+      "title": "3. COMPOSITING",
+      "bounding": [2220, 30, 1000, 480],
+      "color": "#3f8f3f",
+      "font_size": 24
+    }
+  ],
+  "config": {},
+  "extra": {
+    "workflow_info": {
+      "name": "Professional Layer-Based Generation",
+      "version": "1.0",
+      "description": "Generates illustration in layers like a professional artist",
+      "author": "Claude AI",
+      "created_for": "Vast.ai Setup"
+    }
+  },
+  "version": 0.4
+}
